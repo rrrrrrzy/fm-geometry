@@ -1,16 +1,37 @@
 # The Geometric Nature and a Free Proxy for Flow-Matching Uncertainty
 
-Reference implementation of **`accel`** (denoising acceleration) — a cost-free uncertainty proxy
-for flow-matching policies, read off a *single* forward pass with no extra model evaluations, no
-training, and no resampling — and of the online failure detector built on it.
+[![arXiv](https://img.shields.io/badge/arXiv-2607.27933-b31b1b.svg)](https://arxiv.org/abs/2607.27933)
 
-The idea in one paragraph. For conditional flow matching with a linear interpolant, if the action
-posterior collapses to a point the velocity field is an **affine isotropic contraction**, and every
-denoising trajectory is a straight line at constant velocity: zero acceleration. Uncertainty is
-exactly the departure from that template. `accel` measures it as the normalized total variation of
-the denoising velocity, and it tracks the expensive Monte-Carlo resample posterior closely enough
-to serve as its free stand-in — including as an online failure signal that fires well before a
-rollout ends.
+<p align="center">
+  <img src="assets/fm_field.png" alt="Flow-matching denoising fields under certainty, aleatoric uncertainty, and epistemic uncertainty" width="100%">
+</p>
+
+<p align="center">
+  <em>Certainty gives a single sink and a straight denoising path; multimodality branches; OOD scatters
+  the endpoints and bends the path. <code>accel</code> reads that curvature off the path for free.</em>
+  <br>
+  <sub>Vector version: <a href="assets/fm_field.pdf">assets/fm_field.pdf</a></sub>
+</p>
+
+Reference implementation of **`accel`** (denoising acceleration), a cost-free uncertainty proxy
+for flow-matching policies.
+
+## Demo
+
+<table>
+  <tr>
+    <td width="50%">
+      <video src="https://raw.githubusercontent.com/rrrrrrzy/fm-geometry/main/assets/video%201.mp4" controls muted loop width="100%"></video>
+    </td>
+    <td width="50%">
+      <video src="https://raw.githubusercontent.com/rrrrrrzy/fm-geometry/main/assets/video%202.mp4" controls muted loop width="100%"></video>
+    </td>
+  </tr>
+  <tr>
+    <td align="center"><sub><a href="assets/video%201.mp4">video 1</a></sub></td>
+    <td align="center"><sub><a href="assets/video%202.mp4">video 2</a></sub></td>
+  </tr>
+</table>
 
 ```
 record the denoise path  ──►  read accel / Straightness  ──►  CUSUM + split conformal  ──►  alarm
@@ -18,23 +39,6 @@ record the denoise path  ──►  read accel / Straightness  ──►  CUSUM 
                           └──►  resample K chunks  ──►  D_resample     (expensive; the ground
                                 (validation only)                       truth accel stands in for)
 ```
-
-## Scope of this release
-
-This repo ships the **π₀.₅ × LIBERO** reference path: closed-loop recording, the resample ground
-truth, both geometric scores, all 14 registered detectors, and the CUSUM + split-conformal
-calibration. It reproduces that column of the paper end-to-end.
-
-The paper additionally evaluates **SmolVLA, GR00T N1.7 and VLA-JEPA** on **LIBERO, RoboCasa
-Atomic-Seen and D3IL**; those model adapters and benchmark adapters are **not included here**. The
-gap is adapters and eval glue, not method: `accel`, `Straightness`, every detector and the whole
-calibration layer read the **on-disk recording**, not a live policy, so they are model-agnostic
-already. Adding a model is one adapter class plus one line in `fmaccel/registry.py`; adding a
-detection cell is one `--register-cell` flag.
-
-**No data ships.** Every table and figure is regenerated locally. The only artifact reproducible
-with no checkpoint and no GPU is the toy flow-field figure (below); everything else needs a π₀.₅
-checkpoint and a LIBERO install.
 
 ## Install
 
@@ -44,24 +48,17 @@ pip install -e '.[learned]'       # + torch, for the learned baselines (rnd_oe /
 pip install -e '.[all]'           # + lerobot & gymnasium, to record new rollouts
 ```
 
-Producing a *new* recording also needs the LIBERO benchmark, which is not on PyPI — see
-[`docs/reproduce.md`](docs/reproduce.md). Scoring an *existing* recording never does.
+Producing a *new* recording also needs the LIBERO benchmark, see
+[`docs/reproduce.md`](docs/reproduce.md).
 
-## Quickstart — the flow-field figure, ~2 min, no GPU, no data
+## Quickstart — toy FM model, ~2 min, no GPU, no data
 
 ```bash
 python experiments/flowfield_toy.py --device cpu
 ```
 
 Trains one 2-D conditional flow net (225k parameters) on a ring of observations whose action
-targets we choose ourselves — some unimodal, some 2-mode, plus held-out observations the net never
-saw — then draws the learned field at three of them. The certain field contracts to a point with a
-near-straight path and low `accel`; the multimodal and off-support fields bend, with high `accel`
-and a wide resampled posterior. Writes the figure plus a `summary.json` of per-observation `accel`
-and posterior spread to `outputs/flowfield/`.
-
-Because the toy's posterior is known by construction, this is the controlled version of the paper's
-central claim, and it needs nothing but this repo.
+targets are unimodal and multimodal then draws the learned field. Because the toy's posterior is known by construction, this is the controlled version of our central claim.
 
 ## The full pipeline
 
@@ -93,23 +90,6 @@ Every stage writes into one self-describing run directory and records itself in 
 [`outputs/README.md`](outputs/README.md) for the layout and [`docs/formats.md`](docs/formats.md)
 for the on-disk recording format.
 
-## Notation: paper ↔ code
-
-| Paper | Code |
-|---|---|
-| `accel` / denoising acceleration (Algorithm 1) | `whole_chunk_curvature` in `fmaccel/geometry/accel.py` |
-| prefix `accel_p`, first `p` of `T` Euler steps | `whole_chunk_prefix_accel`; selected by mode string `accel_prefix:<j>`, `p = j+2` |
-| `TV(v)` on the figures | the same quantity as `accel` |
-| `Straightness` (chord/arc) | `fmaccel/geometry/straightness.py` |
-| `D_resample` — the uncertainty ground truth | `fmaccel/posterior/divergence.py` |
-| `ρ_full` / `ρ_best` / `p*` | `run_rho_accel_vs_div` / peak of `run_rho_prefix_accel_vs_div` in `chunk_geometry/meta.json` |
-| one-sided CUSUM `S_t`, slack `k = cσ`, `c = 0.25` | `fmaccel/detection/cusum.py` |
-| split conformal alarm height, `r = ⌈(M+1)(1−α)⌉`, `M = 50`, `α = 0.1` | same module |
-| TPR at target FPR, median detection lead | same module |
-
-Both geometric scores are computed over the **executed action window** only (`n_exec =
-min(n_action_steps, chunk_size)`), not the full action horizon — pass it as `--first-actions`.
-
 ## Layout
 
 ```
@@ -138,8 +118,6 @@ computed by a second forward pass.
   numbers to compare against.
 - [`docs/method.md`](docs/method.md) — the estimators, the calibration, and the toy configuration,
   each mapped to the code.
-- [`docs/baselines.md`](docs/baselines.md) — per-detector fidelity notes against each baseline's
-  original paper and reference implementation.
 - [`docs/formats.md`](docs/formats.md) — the on-disk recording format.
 
 ## License

@@ -116,22 +116,7 @@ horizon problem.
 **Metrics.** TPR at target FPR `α = 0.1`, and the median detection lead `L = T_ep − 1 − t_alarm`
 counted in re-planning steps. Reported as mean ± sample std over 5 repeats.
 
-## 5. Baselines
-
-`fmaccel/detectors/` — 14 detectors behind a lazy registry, so a baseline's heavy dependency loads
-only when that baseline is built. [`baselines.md`](baselines.md) is a per-detector audit against
-each original paper and reference implementation, including where this implementation deviates and
-why.
-
-`oracle_resample_spread` is the ground truth used as a detector: an upper bound on what any proxy
-of the posterior spread could achieve, **not** a baseline.
-
-Fit protocol, held out from scoring in every case: the unsupervised embedding-OOD family on 32
-successful rollouts; SAFE on a balanced 16 success + 16 failure split. Training-free detectors are
-scored on that same fit-excluded set within each repeat, so comparisons stay paired. Seeds:
-fit/model 3200–3204, candidate subsets 6400–6404.
-
-## 6. The toy
+## 5. The toy
 
 `fmaccel/toy/`, driven by `experiments/flowfield_toy.py`
 
@@ -168,7 +153,7 @@ Two honest caveats the figure carries:
 - **Euler error looks like curvature.** Too few integration steps inflate `accel`. Raise
   `--num-steps` when reading geometry; the figure uses 40.
 
-## 7. Recording
+## 6. Recording
 
 `fmaccel/recording/recorder.py` + `fmaccel/models/pi05.py`
 
