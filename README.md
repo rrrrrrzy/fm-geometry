@@ -3,7 +3,6 @@
 [![arXiv](https://img.shields.io/badge/arXiv-2607.27933-b31b1b.svg)](https://arxiv.org/abs/2607.27933)
 
 > *There is a goal, but no way; what we call the way is hesitation.*
->
 > — Franz Kafka, *The Zürau Aphorisms*
 
 <p align="center">
@@ -14,11 +13,9 @@
   <em>Certainty gives a single sink and a straight denoising path; multimodality branches; OOD scatters
   the endpoints and bends the path. <code>accel</code> reads that curvature off the path for free.</em>
   <br>
-  <sub>Vector version: <a href="assets/fm_field.pdf">assets/fm_field.pdf</a></sub>
 </p>
 
-Reference implementation of **`accel`** (denoising acceleration), a cost-free uncertainty proxy
-for flow-matching policies.
+This Repo contains the reference implementation of **`accel`** (denoising acceleration), a cost-free uncertainty proxy for flow-matching policies.
 
 ## Demo — the detector running online
 
