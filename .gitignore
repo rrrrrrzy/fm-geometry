@@ -1,0 +1,48 @@
+# Model weights, checkpoints, datasets
+data/*
+!data/README.md
+checkpoints/
+ckpts/
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.ckpt
+*.npz
+
+# Run directories, figures, tables — everything the pipeline produces
+outputs/*
+!outputs/README.md
+logs/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual envs
+.venv/
+venv/
+env/
+.env
+.python-version
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

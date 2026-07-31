@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fm-geometry"
+version = "0.1.0"
+description = "The geometric nature of flow-matching uncertainty, and accel, its free proxy"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+keywords = ["flow matching", "uncertainty", "failure detection", "robot learning", "VLA"]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+# The analysis path — every score, table and figure in the paper — needs only this.
+# Scores are computed post-hoc from the on-disk recording, so no policy is required to
+# reproduce a number from an existing run.
+dependencies = [
+    "numpy>=1.24",
+    "matplotlib>=3.7",
+    "scipy>=1.10",
+    "tqdm>=4.65",
+]
+
+[project.optional-dependencies]
+# The learned baselines (rnd_oe / logpzo / safe) fit small torch models on captured features.
+learned = ["torch>=2.1"]
+
+# Producing a NEW recording: the policy, the benchmark, and the video writer. `lerobot` is
+# pinned because the recorder patches the π₀.₅ flow-matching sampler, which is a private API
+# surface; a different minor version can move it. LIBERO itself is not on PyPI — install it from
+# https://github.com/Lifelong-Robot-Learning/LIBERO (see docs/reproduce.md).
+record = [
+    "torch>=2.1",
+    "lerobot==0.5.2",
+    "transformers>=4.57",
+    "gymnasium>=0.29",
+    "imageio>=2.31",
+    "opencv-python>=4.8",
+]
+
+# Everything, for a full record -> score -> table run.
+all = ["fm-geometry[learned,record]"]
+
+[project.urls]
+Repository = "https://github.com/rrrrrrzy/fm-geometry"
+
+[tool.setuptools]
+# `cli/` and `experiments/` are run as scripts (`python cli/geometry.py`), not imported as
+# packages, so only the library ships as an importable package.
+packages = [
+    "fmaccel",
+    "fmaccel.core",
+    "fmaccel.datasets",
+    "fmaccel.detection",
+    "fmaccel.detectors",
+    "fmaccel.geometry",
+    "fmaccel.models",
+    "fmaccel.posterior",
+    "fmaccel.recording",
+    "fmaccel.toy",
+]
