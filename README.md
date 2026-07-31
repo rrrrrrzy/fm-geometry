@@ -16,20 +16,19 @@
 Reference implementation of **`accel`** (denoising acceleration), a cost-free uncertainty proxy
 for flow-matching policies.
 
-## Demo
+## Demo — the detector running online
+
+`accel` per action chunk (top) driving CUSUM against a conformal threshold (bottom), on π₀.₅ /
+RoboCasa Atomic-Seen. The alarm fires from the free geometric score alone.
 
 <table>
   <tr>
-    <td width="50%">
-      <video src="https://raw.githubusercontent.com/rrrrrrzy/fm-geometry/main/assets/video%201.mp4" controls muted loop width="100%"></video>
-    </td>
-    <td width="50%">
-      <video src="https://raw.githubusercontent.com/rrrrrrzy/fm-geometry/main/assets/video%202.mp4" controls muted loop width="100%"></video>
-    </td>
+    <td width="50%"><img src="assets/video1.gif" alt="Failure rollout: accel rises and CUSUM crosses the threshold, alarm at chunk 25 with 21 chunks of lead" width="100%"></td>
+    <td width="50%"><img src="assets/video2.gif" alt="Success rollout: accel stays low and CUSUM never reaches the threshold, no alarm" width="100%"></td>
   </tr>
   <tr>
-    <td align="center"><sub><a href="assets/video%201.mp4">video 1</a></sub></td>
-    <td align="center"><sub><a href="assets/video%202.mp4">video 2</a></sub></td>
+    <td align="center"><sub><b>failure caught early</b> — alarm at chunk 25/46, <b>21 chunks of lead</b><br><a href="assets/video%201.mp4">mp4</a></sub></td>
+    <td align="center"><sub><b>success stays quiet</b> — no alarm, peak <i>S<sub>t</sub></i> at 16% of threshold<br><a href="assets/video%202.mp4">mp4</a></sub></td>
   </tr>
 </table>
 
@@ -97,14 +96,14 @@ fmaccel/
   recording/    FM trajectory capture during eval + a numpy-only reader
   geometry/     accel (Algorithm 1), Straightness, the denoise-phase profile   [no policy needed]
   posterior/    resample the K-chunk posterior — the ground truth              [needs the policy]
-  detectors/    14 detectors behind a lazy registry; see docs/baselines.md
+  detectors/    14 detectors behind a lazy registry
   detection/    scoring, CUSUM + conformal calibration, GPU capture stages
   models/       the pi05 adapter (the extension point for other policies)
   datasets/     the LIBERO adapter
   toy/          the 2-D flow net for the flow-field figure
 cli/            one thin wrapper per pipeline stage
 experiments/    the paper's tables and figures
-docs/           method, formats, baselines, reproduce
+docs/           method, formats, reproduce
 ```
 
 The split that matters: `geometry/`, `detectors/`, `detection/score`, `detection/cusum` and
