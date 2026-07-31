@@ -1,9 +1,9 @@
 # The Geometric Nature and a Free Proxy for Flow-Matching Uncertainty
 
-[![arXiv](https://img.shields.io/badge/arXiv-2607.27933-b31b1b.svg)](https://arxiv.org/abs/2607.27933)
-
 > *There is a goal, but no way; what we call the way is hesitation.*
 > — Franz Kafka, *The Zürau Aphorisms*
+
+[![arXiv](https://img.shields.io/badge/arXiv-2607.27933-b31b1b.svg)](https://arxiv.org/abs/2607.27933)
 
 <p align="center">
   <img src="assets/fm_field.png" alt="Flow-matching denoising fields under certainty, aleatoric uncertainty, and epistemic uncertainty" width="100%">
