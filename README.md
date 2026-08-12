@@ -33,6 +33,23 @@ RoboCasa Atomic-Seen. The alarm fires from the free geometric score alone.
   </tr>
 </table>
 
+### On real hardware
+
+The same detector on a physical arm: `accel` read off the recorded denoise path, causal CUSUM
+against the conformal threshold *h* = 0.058. Third-person and wrist views on the left, the raw
+signal and the accumulated drift on the right.
+
+<table>
+  <tr>
+    <td width="50%"><img src="assets/realbot_fail.gif" alt="Real-robot failure rollout: accel jumps late in the episode, CUSUM crosses the threshold and the alarm fires at chunk 5" width="100%"></td>
+    <td width="50%"><img src="assets/realbot_success.gif" alt="Real-robot success rollout: accel decays through the episode, CUSUM stays at the floor and no alarm fires" width="100%"></td>
+  </tr>
+  <tr>
+    <td align="center"><sub><b>failure caught early</b> — alarm at chunk 5/7, <b>2 chunks of lead</b> (4.8 s), mean <code>accel</code> 0.149</sub></td>
+    <td align="center"><sub><b>success stays quiet</b> — no alarm, <i>S<sub>t</sub></i> never leaves the floor, mean <code>accel</code> 0.088</sub></td>
+  </tr>
+</table>
+
 ```
 record the denoise path  ──►  read accel / Straightness  ──►  CUSUM + split conformal  ──►  alarm
    (free, during eval)          (free, post-hoc)               (calibrated on successes)
